@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,13 +15,15 @@ namespace tpmodul6_103022300078
 
         public SayaTubeVideo(string title)
         {
-            if (title == null || title.Length > 200)
+            Debug.Assert(title != null && title.Length <= 100, "Title tidak boleh null dan maksimal 100 karakter.");
+
+            if (title == null || title.Length > 100)
             {
-                throw new ArgumentException("Title tidak boleh null dan maksimal 200 karakter.");
+                throw new ArgumentException("Title tidak boleh null dan maksimal 100 karakter.");
             }
 
             Random rand = new Random();
-            this.id = rand.Next(10000, 99999); 
+            this.id = rand.Next(10000, 99999);
 
             this.title = title;
             this.playCount = 0;
@@ -28,12 +31,19 @@ namespace tpmodul6_103022300078
 
         public void IncreasePlayCount(int count)
         {
-            if (count < 0 || count > 10000000)
-            {
-                throw new ArgumentException("Play count harus di antara 0 dan 10.000.000.");
-            }
+            Debug.Assert(count <= 10000000 && count >= 0, "Input play count harus di antara 0 dan 10.000.000.");
 
-            this.playCount += count;
+            try
+            {
+                checked
+                {
+                    this.playCount += count;
+                }
+            }
+            catch (OverflowException ex)
+            {
+                Console.WriteLine($"Terjadi overflow saat menambahkan play count: {ex.Message}");
+            }
         }
 
         public void PrintVideoDetails()
@@ -46,16 +56,5 @@ namespace tpmodul6_103022300078
         }
     }
 
-    // Program utama
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            SayaTubeVideo video = new SayaTubeVideo("Tutorial Design By Contract – MUHAMMAD_AKBAR_ALFARIZI");
 
-            video.IncreasePlayCount(100);
-
-            video.PrintVideoDetails();
-        }
-    }
 }
